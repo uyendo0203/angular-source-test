@@ -1,0 +1,18 @@
+<mat-toolbar color="primary">
+  <span>My Material App</span>
+  <span class="customer__spacer"></span>
+  <button mat-button routerLink="/main/home" routerLinkActive="customer__nav--active" [routerLinkActiveOptions]="{ exact: true }">Home</button>
+  <button mat-button routerLink="/main/products" routerLinkActive="customer__nav--active">Products</button>
+  <button mat-button routerLink="/main/orders" routerLinkActive="customer__nav--active">Orders</button>
+  <button mat-button routerLink="/main/customer" routerLinkActive="customer__nav--active" [routerLinkActiveOptions]="{ exact: true }">Customer</button>
+  <button mat-icon-button (click)="onToggleTheme()" class="customer__theme-btn" 
+          [attr.aria-label]="'Toggle ' + (currentTheme$ | async) + ' theme'">
+    <mat-icon>{{ (currentTheme$ | async) === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
+  <button mat-button routerLink="/auth/login">Logout</button>
+</mat-toolbar>
+
+<div class="customer__container">
+  <h1 class="customer__title">Customer</h1>
+  <p>Customer page content here</p>
+</div>

@@ -1,0 +1,25 @@
+$primary: var(--primary-color);
+
+.customer {
+  &__spacer {
+    flex: 1 1 auto;
+  }
+
+  &__container {
+    padding: 20px;
+  }
+
+  &__title {
+    color: $primary;
+  }
+
+  &__theme-btn {
+    margin: 0 8px;
+  }
+
+  &__nav--active {
+    font-weight: bold;
+    border-bottom: 3px solid white;
+    padding-bottom: 8px !important;
+  }
+}

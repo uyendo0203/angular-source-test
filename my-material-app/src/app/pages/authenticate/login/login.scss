@@ -1,0 +1,85 @@
+$primary: #6ba587;
+$secondary: #80cbc4;
+
+.login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  padding: 20px;
+
+  &__card {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+  }
+
+  &__field {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  &__button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  &__links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
+
+  &__link {
+    color: $primary;
+    text-decoration: none;
+    font-size: 12px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__divider {
+    margin: 20px 0;
+  }
+
+  &__mock-credentials {
+    margin-top: 15px;
+  }
+
+  &__mock-title {
+    margin: 0 0 10px 0;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &__mock-item {
+    margin-bottom: 8px;
+  }
+
+  &__mock-button {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+    text-align: left;
+  }
+
+  &__mock-name {
+    font-weight: 500;
+    font-size: 13px;
+  }
+
+  &__mock-email {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 2px;
+  }
+}

@@ -1,0 +1,127 @@
+/* Material Design Themes */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+/* Light Theme (Default) */
+:root,
+.light-theme {
+  --primary-color: #6ba587;
+  --accent-color: #7cb342;
+  --warn-color: #ffb74d;
+  
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --text-primary: rgba(0, 0, 0, 0.87);
+  --text-secondary: rgba(0, 0, 0, 0.54);
+  
+  --card-bg: #ffffff;
+  --border-color: #e0e0e0;
+}
+
+/* Dark Theme */
+.dark-theme {
+  --primary-color: #80cbc4;
+  --accent-color: #a5d6a7;
+  --warn-color: #ffb74d;
+  
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  
+  --card-bg: #1e1e1e;
+  --border-color: #2c2c2c;
+}
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: Roboto, sans-serif;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Material Components Theme Override */
+.mat-toolbar {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.mat-card {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.mat-form-field .mat-form-field-label {
+  color: var(--text-secondary) !important;
+}
+
+.mat-form-field.mat-focused .mat-form-field-label {
+  color: var(--primary-color) !important;
+}
+
+.mat-input-element {
+  caret-color: var(--primary-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.mat-button, .mat-raised-button {
+  color: var(--text-primary) !important;
+}
+
+.mat-button[color="primary"], .mat-raised-button[color="primary"] {
+  color: white !important;
+  background-color: var(--primary-color) !important;
+}
+
+.mat-table {
+  background-color: var(--card-bg) !important;
+}
+
+.mat-header-cell {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.mat-table-sticky {
+  background-color: var(--primary-color) !important;
+}
+
+.mat-row {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.mat-row:hover {
+  background-color: var(--bg-secondary) !important;
+}
+
+.mat-button:hover {
+  background-color: var(--bg-secondary) !important;
+}

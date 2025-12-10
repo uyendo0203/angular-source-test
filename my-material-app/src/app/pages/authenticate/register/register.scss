@@ -1,0 +1,42 @@
+$primary: #6ba587;
+$secondary: #80cbc4;
+
+.register {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  padding: 20px;
+
+  &__card {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+  }
+
+  &__field {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  &__button {
+    width: 100%;
+  }
+
+  &__links {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+  }
+
+  &__link {
+    color: $primary;
+    text-decoration: none;
+    font-size: 14px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
