@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { CookieService } from './cookie.service';
 
 export interface User {
   id: string;
@@ -17,7 +18,7 @@ export interface LoginResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private mockUsers: User[] = [
@@ -26,22 +27,22 @@ export class AuthService {
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
-      password: 'password123'
+      password: 'password123',
     },
     {
       id: '2',
       firstName: 'Jane',
       lastName: 'Smith',
       email: 'jane@example.com',
-      password: 'password123'
+      password: 'password123',
     },
     {
       id: '3',
       firstName: 'Admin',
       lastName: 'User',
       email: 'admin@example.com',
-      password: 'admin123'
-    }
+      password: 'admin123',
+    },
   ];
 
   private currentUser = new BehaviorSubject<User | null>(null);
@@ -50,19 +51,24 @@ export class AuthService {
   private isAuthenticated = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticated.asObservable();
 
-  constructor() {
+  private readonly CURRENT_USER_COOKIE = 'currentUser';
+  private readonly AUTH_TOKEN_COOKIE = 'authToken';
+  private readonly USERS_COOKIE = 'users';
+  private readonly COOKIE_EXPIRY_DAYS = 7;
+
+  constructor(private cookieService: CookieService) {
     this.initializeAuth();
   }
 
   private initializeAuth(): void {
-    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    if (typeof window === 'undefined') {
       this.initializeMockUsers();
       return;
     }
 
     try {
-      const savedUser = localStorage.getItem('currentUser');
-      const token = localStorage.getItem('authToken');
+      const savedUser = this.cookieService.getCookie(this.CURRENT_USER_COOKIE);
+      const token = this.cookieService.getCookie(this.AUTH_TOKEN_COOKIE);
       
       if (savedUser && token) {
         const user = JSON.parse(savedUser);
@@ -75,17 +81,19 @@ export class AuthService {
       console.error('Error initializing auth:', error);
       this.initializeMockUsers();
     }
-  }
-
-  private initializeMockUsers(): void {
-    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+  }  private initializeMockUsers(): void {
+    if (typeof window === 'undefined') {
       return;
     }
 
     try {
-      const existingUsers = localStorage.getItem('users');
+      const existingUsers = this.cookieService.getCookie(this.USERS_COOKIE);
       if (!existingUsers) {
-        localStorage.setItem('users', JSON.stringify(this.mockUsers));
+        this.cookieService.setCookie(
+          this.USERS_COOKIE,
+          JSON.stringify(this.mockUsers),
+          this.COOKIE_EXPIRY_DAYS
+        );
       }
     } catch (error) {
       console.error('Error initializing mock users:', error);
@@ -94,20 +102,28 @@ export class AuthService {
 
   login(email: string, password: string): LoginResponse {
     const users = this.getAllUsers();
-    const user = users.find(u => u.email === email && u.password === password);
+    const user = users.find((u) => u.email === email && u.password === password);
 
     if (user) {
       const token = this.generateToken(user);
-      
-      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+
+      if (typeof window !== 'undefined') {
         try {
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          localStorage.setItem('authToken', token);
+          this.cookieService.setCookie(
+            this.CURRENT_USER_COOKIE,
+            JSON.stringify(user),
+            this.COOKIE_EXPIRY_DAYS
+          );
+          this.cookieService.setCookie(
+            this.AUTH_TOKEN_COOKIE,
+            token,
+            this.COOKIE_EXPIRY_DAYS
+          );
         } catch (error) {
-          console.error('Error saving to localStorage:', error);
+          console.error('Error saving to cookies:', error);
         }
       }
-      
+
       this.currentUser.next(user);
       this.isAuthenticated.next(true);
 
@@ -115,23 +131,23 @@ export class AuthService {
         success: true,
         message: 'Login successful',
         user,
-        token
+        token,
       };
     }
 
     return {
       success: false,
-      message: 'Invalid email or password'
+      message: 'Invalid email or password',
     };
   }
 
   register(firstName: string, lastName: string, email: string, password: string): LoginResponse {
     const users = this.getAllUsers();
-    
-    if (users.some(u => u.email === email)) {
+
+    if (users.some((u) => u.email === email)) {
       return {
         success: false,
-        message: 'Email already exists'
+        message: 'Email already exists',
       };
     }
 
@@ -140,14 +156,18 @@ export class AuthService {
       firstName,
       lastName,
       email,
-      password
+      password,
     };
 
     users.push(newUser);
 
-    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem('users', JSON.stringify(users));
+        this.cookieService.setCookie(
+          this.USERS_COOKIE,
+          JSON.stringify(users),
+          this.COOKIE_EXPIRY_DAYS
+        );
       } catch (error) {
         console.error('Error saving users:', error);
       }
@@ -156,33 +176,37 @@ export class AuthService {
     return {
       success: true,
       message: 'Registration successful. Please login.',
-      user: newUser
+      user: newUser,
     };
   }
 
   logout(): void {
-    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    if (typeof window !== 'undefined') {
       try {
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('authToken');
+        this.cookieService.deleteCookie(this.CURRENT_USER_COOKIE);
+        this.cookieService.deleteCookie(this.AUTH_TOKEN_COOKIE);
       } catch (error) {
-        console.error('Error clearing localStorage:', error);
+        console.error('Error clearing cookies:', error);
       }
     }
-    
+
     this.currentUser.next(null);
     this.isAuthenticated.next(false);
   }
 
   forgotPassword(email: string): LoginResponse {
     const users = this.getAllUsers();
-    const user = users.find(u => u.email === email);
+    const user = users.find((u) => u.email === email);
 
     if (user) {
-      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      if (typeof window !== 'undefined') {
         try {
           const resetToken = this.generateToken(user);
-          localStorage.setItem(`reset_${email}`, resetToken);
+          this.cookieService.setCookie(
+            `reset_${email}`,
+            resetToken,
+            1
+          );
         } catch (error) {
           console.error('Error saving reset token:', error);
         }
@@ -190,27 +214,31 @@ export class AuthService {
 
       return {
         success: true,
-        message: 'Password reset link sent to your email'
+        message: 'Password reset link sent to your email',
       };
     }
 
     return {
       success: false,
-      message: 'Email not found'
+      message: 'Email not found',
     };
   }
 
   resetPassword(email: string, newPassword: string): LoginResponse {
     const users = this.getAllUsers();
-    const user = users.find(u => u.email === email);
+    const user = users.find((u) => u.email === email);
 
     if (user) {
       user.password = newPassword;
 
-      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      if (typeof window !== 'undefined') {
         try {
-          localStorage.setItem('users', JSON.stringify(users));
-          localStorage.removeItem(`reset_${email}`);
+          this.cookieService.setCookie(
+            this.USERS_COOKIE,
+            JSON.stringify(users),
+            this.COOKIE_EXPIRY_DAYS
+          );
+          this.cookieService.deleteCookie(`reset_${email}`);
         } catch (error) {
           console.error('Error resetting password:', error);
         }
@@ -218,13 +246,13 @@ export class AuthService {
 
       return {
         success: true,
-        message: 'Password reset successfully'
+        message: 'Password reset successfully',
       };
     }
 
     return {
       success: false,
-      message: 'User not found'
+      message: 'User not found',
     };
   }
 
@@ -237,12 +265,12 @@ export class AuthService {
   }
 
   private getAllUsers(): User[] {
-    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    if (typeof window === 'undefined') {
       return this.mockUsers;
     }
 
     try {
-      const users = localStorage.getItem('users');
+      const users = this.cookieService.getCookie(this.USERS_COOKIE);
       return users ? JSON.parse(users) : this.mockUsers;
     } catch (error) {
       console.error('Error getting users:', error);
@@ -264,22 +292,30 @@ export class AuthService {
     if (!user) {
       return {
         success: false,
-        message: 'No user logged in'
+        message: 'No user logged in',
       };
     }
 
     user.firstName = firstName;
     user.lastName = lastName;
 
-    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        
+        this.cookieService.setCookie(
+          this.CURRENT_USER_COOKIE,
+          JSON.stringify(user),
+          this.COOKIE_EXPIRY_DAYS
+        );
+
         const users = this.getAllUsers();
-        const index = users.findIndex(u => u.id === user.id);
+        const index = users.findIndex((u) => u.id === user.id);
         if (index !== -1) {
           users[index] = user;
-          localStorage.setItem('users', JSON.stringify(users));
+          this.cookieService.setCookie(
+            this.USERS_COOKIE,
+            JSON.stringify(users),
+            this.COOKIE_EXPIRY_DAYS
+          );
         }
       } catch (error) {
         console.error('Error updating profile:', error);
@@ -291,20 +327,20 @@ export class AuthService {
     return {
       success: true,
       message: 'Profile updated successfully',
-      user
+      user,
     };
   }
 
   // Refresh auth state - called when a new tab is opened
   refreshAuthState(): void {
-    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    if (typeof window === 'undefined') {
       return;
     }
 
     try {
-      const savedUser = localStorage.getItem('currentUser');
-      const token = localStorage.getItem('authToken');
-      
+      const savedUser = this.cookieService.getCookie(this.CURRENT_USER_COOKIE);
+      const token = this.cookieService.getCookie(this.AUTH_TOKEN_COOKIE);
+
       if (savedUser && token) {
         const user = JSON.parse(savedUser);
         this.currentUser.next(user);
