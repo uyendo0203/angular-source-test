@@ -123,7 +123,11 @@
       />
     </div>
     <div class="real-time__container">
-      <p i18n>Users seeing this page: {{ activeUsersResource.value().activeUsers }}</p>
+      @if (activeUsersResource.value(); as data) {
+        <p i18n>Users seeing this page: {{ data.activeUsers }}</p>
+      } @else {
+        <p>Users seeing this page: 1</p>
+      }
     </div>
   } @placeholder {
     <div class="real-time__container">

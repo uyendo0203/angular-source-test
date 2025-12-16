@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal, resource } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { DecorativeHeaderComponent } from '~shared/components/decorative-header/decorative-header.component';
 import { CardComponent } from '~shared/components/card/card.component';
 import { interval } from 'rxjs';
@@ -14,13 +15,23 @@ import { AnalyticsService } from '~core/services/analytics.service';
 })
 export class HomeComponent {
   private readonly analyticsService = inject(AnalyticsService);
-  readonly activeUsersResource = this.analyticsService.getRealtimeUsersResource();
+  private readonly http = inject(HttpClient);
+  private readonly reload$ = signal(0);
+
+  readonly activeUsersResource = resource({
+    loader: async () => {
+      this.reload$(); // Track signal changes
+      const result = await this.http
+        .get<{ activeUsers: number }>(this.analyticsService.getRealtimeUsersUrl())
+        .toPromise();
+      return result || { activeUsers: 1 };
+    },
+  });
 
   constructor() {
-    this.activeUsersResource.reload();
     effect(() => {
       const sub = interval(5000).subscribe(() => {
-        this.activeUsersResource.reload();
+        this.reload$.update(v => v + 1);
       });
       return () => {
         sub.unsubscribe();

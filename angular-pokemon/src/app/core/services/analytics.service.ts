@@ -1,5 +1,4 @@
 import { DOCUMENT, inject, Injectable } from '@angular/core';
-import { httpResource, type HttpResourceRef } from '@angular/common/http';
 import { getEndpoints } from '~core/constants/endpoints.constants';
 
 @Injectable({
@@ -17,12 +16,7 @@ export class AnalyticsService {
     this.document.head.appendChild(script);
   }
 
-  getRealtimeUsersResource(): HttpResourceRef<{ activeUsers: number }> {
-    return httpResource<{ activeUsers: number }>(
-      () => ({ url: this.endpoints.analytics.v1.realtimeUsers }),
-      {
-        defaultValue: { activeUsers: 1 },
-      },
-    );
+  getRealtimeUsersUrl(): string {
+    return this.endpoints.analytics.v1.realtimeUsers;
   }
 }
