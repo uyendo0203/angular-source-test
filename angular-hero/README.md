@@ -1,8 +1,6 @@
 <div align="center">
   <h1>🚀 Angular Example App</h1>
 
-  ![alt text](image.png)
-
   <p>
     Your all-in-one <strong>real-world</strong> Angular starter — built for <strong>learning</strong>, <strong>productivity</strong>, and <strong>scaling</strong>.
     <br><br>
