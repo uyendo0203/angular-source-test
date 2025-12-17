@@ -7,5 +7,9 @@ import { Component } from '@angular/core';
   styleUrl: './home.css',
 })
 export class Home {
+  count = 0;
 
+  increment() {
+    this.count++;
+  }
 }
